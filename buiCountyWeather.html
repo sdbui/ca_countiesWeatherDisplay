@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html ng-app="countyApp">
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="js/states.js"></script>
+    <script src="js/counties.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script>
+
+        var countyApp = angular.module('countyApp',[]);
+
+        countyApp.controller('countyCtrl',function($scope,$http){
+            $scope.searchText = '';
+            $scope.filteredCounties = []; //array to store filtered counties
+            $scope.counties = counties;
+
+
+            $scope.getWeather = function(county){
+                console.log(county.primary_latitude);
+                console.log(county.primary_longitude);
+                var url = 'http://api.openweathermap.org/data/2.5/weather?lat='+county.primary_latitude+'&lon='+
+                        county.primary_longitude;
+                $http.get(url).success(function(data){
+                    county.weather = {
+                        description: data.weather[0].description,
+                        imgurl: 'http://openweathermap.org/img/w/'+data.weather[0].icon+'.png'
+                    };
+                });
+
+            };
+        });
+
+
+    </script>
+    <style>
+
+        body{
+            background-color: #006060;
+            font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
+        }
+
+        #wrapper{
+            background-color: #B8DADA;
+            width: 90%;
+            margin: 0 auto;
+            border: 5px solid #539E9E;
+
+        }
+
+
+        #searchField{
+            margin: 0 auto;
+            text-align: center;
+        }
+        #searchField input{
+            text-align: center;
+            font-size: larger;
+            height: 2em;
+            margin: 1.5em auto;
+        }
+
+        #countyField{
+            margin:0 auto;
+            text-align: center;
+        }
+
+        a{
+            text-decoration: none;
+            color: black;
+        }
+
+        .county_card{
+            vertical-align: middle;
+            display:inline-block;
+            margin:.5em .7em;
+            min-width: 10%;
+            border:5px solid #539E9E;
+            background-color: #FFBF3D;
+        }
+
+        .county_card:hover{
+            cursor:pointer;
+        }
+
+        .county_card div:nth-child(1){
+            font-size: larger;
+            padding-top: .4em;
+            min-height: 2em;
+            background-color: #EB7F00;
+        }
+
+        .county_card div:nth-child(2){
+            font-style: italic;
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="wrapper" ng-controller="countyCtrl">
+
+    <div id="searchField">
+        <input type="text" ng-model="searchText" placeholder="filter"/>
+    </div>
+
+    <div id="countyField">
+        <div class="county_card"  ng-click="getWeather(county)" ng-repeat="county in counties | orderBy: 'county.name'| filter:searchText">
+                <div><b>{{county.name}}</b></div>
+                <div><span ng-bind="county.weather.description.toUpperCase()"></span></div>
+                <div><img ng-src="{{county.weather.imgurl}}" alt=""/></div>
+        </div>
+    </div>
+
+
+</div>
+
+</body>
+</html>
